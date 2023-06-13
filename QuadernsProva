@@ -1,0 +1,64 @@
+# Python 3 server example
+from http.server import BaseHTTPRequestHandler, HTTPServer
+import time
+
+hostName = "localhost"
+serverPort = 8000
+
+
+class MyServer(BaseHTTPRequestHandler):
+    def do_GET(self):
+        
+        self.cabeceras()
+        #--------------------- respuestas previstas segun la url solicitada
+        respuesta ="Hola mundo"
+        if self.path == "/rss" :
+            respuesta = self.noticias()
+        elif self.path == "/clientes":
+            respuesta = self.clientes()
+        elif self.path == "/frutas":
+            respuesta = self.frutas()
+
+        self.escribir(respuesta)
+        
+        self.pie_pagina()
+
+    def cabeceras (self) :
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.escribir("<html><head><title>https://pythonbasics.org</title></head>")
+        self.escribir(f"<p>Request: {self.path} </p> <body>")
+        
+    def pie_pagina (self):
+        self.escribir("</body></html>")
+
+    def noticias (self):
+        return ("<p>La noticia del dia es que funciona, bravo !!<p>")
+    
+    def clientes (self):
+        clientes = ["Marcos Frias", "Marta Lopez", "Lucas zz"]
+        texto = ""
+        for c in clientes :
+            texto += f"<li>{c}</li> \n"
+        html = f"<div><ul>{texto}</ul></div>"
+        
+        return(html)
+    
+    def frutas (self):
+         return ("<p>banana <br>pera <br>coco<br></p>")
+        
+    def escribir(self, texto):
+        self.wfile.write(bytes(texto, "utf-8"))
+        
+#-------------------------- Inicio del programa
+if __name__ == "__main__":        
+
+    try:
+        webServer = HTTPServer((hostName, serverPort), MyServer)
+        print("Server started http://%s:%s" % (hostName, serverPort))
+        webServer.serve_forever()
+    except KeyboardInterrupt:
+        print(str(e))
+    webServer.server_close()
+    print("Server stopped.")
